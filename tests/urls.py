@@ -1,9 +1,9 @@
-from django.conf.urls import include, url
+from django.urls import include, path, re_path
 from django.contrib import admin
 
 import nexus
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^nexus/', include(nexus.site.urls)),
+    re_path(r'^admin/', admin.site.urls),
+    path('nexus/', include(nexus.site.urls)),
 ]

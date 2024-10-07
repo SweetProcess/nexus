@@ -1,7 +1,7 @@
 import multiprocessing
 import platform
 
-from django.conf.urls import url
+from django.urls import path
 
 import nexus
 
@@ -15,7 +15,7 @@ class HelloWorldModule(nexus.NexusModule):
 
     def get_urls(self):
         return [
-            url(r'^$', self.as_view(self.index), name='index'),
+            path('', self.as_view(self.index), name='index'),
         ]
 
     def render_on_dashboard(self, request):
@@ -70,7 +70,7 @@ class StyleGuideModule(nexus.NexusModule):
 
     def get_urls(self):
         return [
-            url(r'^$', self.as_view(self.index), name='index'),
+            path('', self.as_view(self.index), name='index'),
         ]
 
     def index(self, request):

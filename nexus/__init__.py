@@ -11,7 +11,6 @@ __version__ = '2.1.2'
 VERSION = __version__
 __all__ = ('autodiscover', 'NexusSite', 'NexusModule', 'site')
 
-default_app_config = 'nexus.apps.NexusAppConfig'
 
 
 def autodiscover():

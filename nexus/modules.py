@@ -3,7 +3,7 @@ import logging
 import os
 import threading
 
-from nexus.compat import reverse
+from django.urls import reverse
 
 
 class NexusModule(object):

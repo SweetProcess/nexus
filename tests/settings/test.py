@@ -9,4 +9,4 @@ from .base import DATABASES
 DEBUG = False
 
 DATABASES = deepcopy(DATABASES)
-del DATABASES['default']['NAME']
+del DATABASES["default"]["NAME"]

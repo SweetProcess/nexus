@@ -11,7 +11,7 @@ register = template.Library()
 
 @register.simple_tag
 def nexus_media_prefix():
-    return nexus_settings.MEDIA_PREFIX.rstrip('/')
+    return nexus_settings.MEDIA_PREFIX.rstrip("/")
 
 
 @register.simple_tag
@@ -19,15 +19,23 @@ def nexus_version():
     return nexus.__version__
 
 
-@register.inclusion_tag('nexus/navigation.html', takes_context=True)
+@register.inclusion_tag("nexus/navigation.html", takes_context=True)
 def show_navigation(context):
-    site = context.get('nexus_site', NexusModule.get_global('site'))
-    request = context['request']
+    site = context.get("nexus_site", NexusModule.get_global("site"))
+    request = context["request"]
 
-    category_link_set = OrderedDict([(k, {
-        'label': v,
-        'links': [],
-    }) for k, v in site.get_categories()])
+    category_link_set = OrderedDict(
+        [
+            (
+                k,
+                {
+                    "label": v,
+                    "links": [],
+                },
+            )
+            for k, v in site.get_categories()
+        ]
+    )
 
     for namespace, module in site._registry.items():
         module, category = module
@@ -35,7 +43,7 @@ def show_navigation(context):
         if module.permission and not request.user.has_perm(module.permission):
             continue
 
-        home_url = module.get_home_url(context['request'])
+        home_url = module.get_home_url(context["request"])
 
         if not home_url:
             continue
@@ -48,14 +56,16 @@ def show_navigation(context):
             else:
                 label = None
             category_link_set[category] = {
-                'label': label,
-                'links': [],
+                "label": label,
+                "links": [],
             }
 
-        category_link_set[category]['links'].append((module.get_title(), home_url, active))
-        category_link_set[category]['active'] = active
+        category_link_set[category]["links"].append(
+            (module.get_title(), home_url, active)
+        )
+        category_link_set[category]["active"] = active
 
     return {
-        'nexus_site': site,
-        'category_link_set': list(category_link_set.values()),
+        "nexus_site": site,
+        "category_link_set": list(category_link_set.values()),
     }

@@ -4,11 +4,12 @@ from django.test.utils import override_settings
 
 from nexus.checks import check_requirements
 
-INSTALLED_APPS_WITHOUT_AUTH = list(set(settings.INSTALLED_APPS) - {'django.contrib.auth'})
+INSTALLED_APPS_WITHOUT_AUTH = list(
+    set(settings.INSTALLED_APPS) - {"django.contrib.auth"}
+)
 
 
 class ChecksTests(TestCase):
-
     def test_requirements_pass(self):
         assert check_requirements([]) == []
 

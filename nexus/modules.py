@@ -28,15 +28,17 @@ class NexusModule(object):
 
         # Set up default logging for this module
         if not self.logger_name:
-            self.logger_name = 'nexus.%s' % (self.name)
+            self.logger_name = "nexus.%s" % (self.name)
         self.logger = logging.getLogger(self.logger_name)
 
         if not self.media_root:
             mod = __import__(self.__class__.__module__)
-            self.media_root = os.path.normpath(os.path.join(os.path.dirname(mod.__file__), 'media'))
+            self.media_root = os.path.normpath(
+                os.path.join(os.path.dirname(mod.__file__), "media")
+            )
 
     def __getattribute__(self, name):
-        NexusModule.set_global('site', object.__getattribute__(self, 'site'))
+        NexusModule.set_global("site", object.__getattribute__(self, "site"))
         return object.__getattribute__(self, name)
 
     @classmethod
@@ -52,27 +54,33 @@ class NexusModule(object):
 
     def render_to_string(self, template, context={}, request=None):
         context.update(self.get_context(request))
-        return self.site.render_to_string(template, context, request, current_app=self.name)
+        return self.site.render_to_string(
+            template, context, request, current_app=self.name
+        )
 
     def render_to_response(self, template, context={}, request=None):
         context.update(self.get_context(request))
-        return self.site.render_to_response(template, context, request, current_app=self.name)
+        return self.site.render_to_response(
+            template, context, request, current_app=self.name
+        )
 
     def as_view(self, *args, **kwargs):
-        if 'extra_permission' not in kwargs:
-            kwargs['extra_permission'] = self.permission
+        if "extra_permission" not in kwargs:
+            kwargs["extra_permission"] = self.permission
         return self.site.as_view(*args, **kwargs)
 
     def get_context(self, request):
         title = self.get_title()
         return {
-            'title': title,
-            'module_title': title,
-            'trail_bits': self.get_trail(request),
+            "title": title,
+            "module_title": title,
+            "trail_bits": self.get_trail(request),
         }
 
     def get_namespace(self):
-        return hashlib.md5(self.__class__.__module__ + '.' + self.__class__.__name__).hexdigest()
+        return hashlib.md5(
+            self.__class__.__module__ + "." + self.__class__.__name__
+        ).hexdigest()
 
     def get_title(self):
         return self.__class__.__name__
@@ -97,7 +105,7 @@ class NexusModule(object):
     def get_home_url(self, request):
         if self.home_url:
             if self.app_name:
-                home_url_name = '%s:%s' % (self.app_name, self.home_url)
+                home_url_name = "%s:%s" % (self.app_name, self.home_url)
             else:
                 home_url_name = self.home_url
 

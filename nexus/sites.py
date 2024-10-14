@@ -10,7 +10,12 @@ from functools import update_wrapper, wraps
 from django.urls import path, re_path, reverse
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse, HttpResponseNotModified, HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseNotModified,
+    HttpResponseRedirect,
+)
 from django.shortcuts import render
 from django.template import context_processors
 from django.template.loader import render_to_string
@@ -26,11 +31,11 @@ NEXUS_ROOT = os.path.normpath(os.path.dirname(__file__))
 
 
 class NexusSite(object):
-    def __init__(self, name=None, app_name='nexus'):
+    def __init__(self, name=None, app_name="nexus"):
         self._registry = {}
         self._categories = OrderedDict()
         if name is None:
-            self.name = 'nexus'
+            self.name = "nexus"
         else:
             self.name = name
         self.app_name = app_name
@@ -57,19 +62,19 @@ class NexusSite(object):
     def get_urls(self):
         base_urls = (
             [
-                path('media/<str:module>/<path:path>', self.media, name='media'),
-                path('', self.as_view(self.dashboard), name='index'),
+                path("media/<str:module>/<path:path>", self.media, name="media"),
+                path("", self.as_view(self.dashboard), name="index"),
             ],
             self.app_name,
             self.name,
         )
 
         urlpatterns = [
-            re_path(r'^', base_urls),
+            re_path(r"^", base_urls),
         ]
         for namespace, module in self.get_modules():
             urlpatterns += [
-                re_path(r'^%s/' % namespace, module.urls),
+                re_path(r"^%s/" % namespace, module.urls),
             ]
 
         return urlpatterns
@@ -94,6 +99,7 @@ class NexusSite(object):
 
         extra_permission can be used to require an extra permission for this view, such as a module permission
         """
+
         @wraps(view)
         def inner(request, *args, **kwargs):
             if not request.user.is_authenticated:
@@ -108,7 +114,7 @@ class NexusSite(object):
 
         # We add csrf_protect here so this function can be used as a utility
         # function for any view, without having to repeat 'csrf_protect'.
-        if not getattr(view, 'csrf_exempt', False):
+        if not getattr(view, "csrf_exempt", False):
             inner = csrf_protect(inner)
 
         inner = ensure_csrf_cookie(inner)
@@ -117,11 +123,13 @@ class NexusSite(object):
 
     def get_context(self, request):
         context = context_processors.csrf(request)
-        context.update({
-            'request': request,
-            'nexus_site': self,
-            'nexus_media_prefix': nexus_settings.MEDIA_PREFIX.rstrip('/'),
-        })
+        context.update(
+            {
+                "request": request,
+                "nexus_site": self,
+                "nexus_media_prefix": nexus_settings.MEDIA_PREFIX.rstrip("/"),
+            }
+        )
         return context
 
     def get_modules(self):
@@ -136,13 +144,13 @@ class NexusSite(object):
             yield k, v
 
     def get_category_label(self, category):
-        return self._categories.get(category, category.title().replace('_', ' '))
+        return self._categories.get(category, category.title().replace("_", " "))
 
     def render_to_string(self, template, context, request, current_app=None):
         if not current_app:
             current_app = self.name
         else:
-            current_app = '%s:%s' % (self.name, current_app)
+            current_app = "%s:%s" % (self.name, current_app)
 
         if request:
             request.current_app = current_app
@@ -156,7 +164,7 @@ class NexusSite(object):
         if not current_app:
             current_app = self.name
         else:
-            current_app = '%s:%s' % (self.name, current_app)
+            current_app = "%s:%s" % (self.name, current_app)
 
         if request:
             request.current_app = current_app
@@ -171,15 +179,15 @@ class NexusSite(object):
         """
         Serve static files below a given point in the directory structure.
         """
-        if module == 'nexus':
-            document_root = os.path.join(NEXUS_ROOT, 'media')
+        if module == "nexus":
+            document_root = os.path.join(NEXUS_ROOT, "media")
         else:
             document_root = self.get_module(module).media_root
 
         path = posixpath.normpath(urllib.parse.unquote(path))
-        path = path.lstrip('/')
-        newpath = ''
-        for part in path.split('/'):
+        path = path.lstrip("/")
+        newpath = ""
+        for part in path.split("/"):
             if not part:
                 # Strip empty path components.
                 continue
@@ -188,7 +196,7 @@ class NexusSite(object):
             if part in (os.curdir, os.pardir):
                 # Strip '.' and '..' in path.
                 continue
-            newpath = os.path.join(newpath, part).replace('\\', '/')
+            newpath = os.path.join(newpath, part).replace("\\", "/")
         if newpath and path != newpath:
             return HttpResponseRedirect(newpath)
         fullpath = os.path.join(document_root, newpath)
@@ -198,11 +206,12 @@ class NexusSite(object):
             raise Http404('"%s" does not exist' % fullpath)
         # Respect the If-Modified-Since header.
         statobj = os.stat(fullpath)
-        mimetype = mimetypes.guess_type(fullpath)[0] or 'application/octet-stream'
-        if not was_modified_since(request.headers.get('if-modified-since'),
-                                  statobj[stat.ST_MTIME]):
+        mimetype = mimetypes.guess_type(fullpath)[0] or "application/octet-stream"
+        if not was_modified_since(
+            request.headers.get("if-modified-since"), statobj[stat.ST_MTIME]
+        ):
             return HttpResponseNotModified(content_type=mimetype)
-        contents = open(fullpath, 'rb').read()
+        contents = open(fullpath, "rb").read()
         response = HttpResponse(contents, content_type=mimetype)
         response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
         response["Content-Length"] = len(contents)
@@ -212,11 +221,11 @@ class NexusSite(object):
     def login(self, request, form_class=None):
         "Login form"
         if request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('nexus:index', current_app=self.name))
+            return HttpResponseRedirect(reverse("nexus:index", current_app=self.name))
 
         return HttpResponseRedirect(
-            '{login}?{get}'.format(
-                login=reverse('admin:login'),
+            "{login}?{get}".format(
+                login=reverse("admin:login"),
                 get=urllib.parse.urlencode({REDIRECT_FIELD_NAME: request.path}),
             ),
         )
@@ -227,14 +236,24 @@ class NexusSite(object):
         for namespace, module in self.get_modules():
             home_url = module.get_home_url(request)
 
-            if hasattr(module, 'render_on_dashboard'):
+            if hasattr(module, "render_on_dashboard"):
                 # Show by default, unless a permission is required
                 if not module.permission or request.user.has_perm(module.permission):
-                    module_set.append((module.get_dashboard_title(), module.render_on_dashboard(request), home_url))
+                    module_set.append(
+                        (
+                            module.get_dashboard_title(),
+                            module.render_on_dashboard(request),
+                            home_url,
+                        )
+                    )
 
-        return self.render_to_response('nexus/dashboard.html', {
-            'module_set': module_set,
-        }, request)
+        return self.render_to_response(
+            "nexus/dashboard.html",
+            {
+                "module_set": module_set,
+            },
+            request,
+        )
 
 
 # setup the default site

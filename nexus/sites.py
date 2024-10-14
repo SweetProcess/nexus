@@ -199,7 +199,7 @@ class NexusSite(object):
         statobj = os.stat(fullpath)
         mimetype = mimetypes.guess_type(fullpath)[0] or 'application/octet-stream'
         if not was_modified_since(request.headers.get('if-modified-since'),
-                                  statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
+                                  statobj[stat.ST_MTIME]):
             return HttpResponseNotModified(content_type=mimetype)
         contents = open(fullpath, 'rb').read()
         response = HttpResponse(contents, content_type=mimetype)

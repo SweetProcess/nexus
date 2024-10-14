@@ -14,6 +14,7 @@ from django.http import Http404, HttpResponse, HttpResponseNotModified, HttpResp
 from django.shortcuts import render
 from django.template import context_processors
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
 from django.utils.http import http_date
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
@@ -207,7 +208,7 @@ class NexusSite(object):
         response["Content-Length"] = len(contents)
         return response
 
-    @never_cache
+    @method_decorator(never_cache)
     def login(self, request, form_class=None):
         "Login form"
         if request.user.is_authenticated:
